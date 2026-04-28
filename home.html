@@ -894,7 +894,7 @@
           <div class="sidebar-widget-body outer-top-xs">
             <div class="owl-carousel sidebar-carousel special-offer custom-carousel owl-theme outer-top-xs">
               <div class="item">
-                <div class="products special-product">
+                <div id="special-product" class="products special-product">
                   <div class="product">
                     <div class="product-micro">
                       <div class="row product-micro-row">
@@ -3764,6 +3764,193 @@
 <script src="assets/js/bootstrap-select.min.js"></script> 
 <script src="assets/js/wow.min.js"></script> 
 <script src="assets/js/scripts.js"></script>
+<script>
+async function loadSpecialProducts() {
+  const container = document.getElementById("special-product");
+
+  try {
+    const response = await fetch("data/product.json");
+
+    if (!response.ok) {
+      throw new Error("Network response was not ok");
+    }
+
+    const data = await response.json();
+
+    // Clear container before inserting
+    container.innerHTML = "";
+
+    data.products.forEach(product => {
+  const item = product.productMicroRow;
+
+  const productHTML = `
+    <div class="row product-micro-row">
+      <div class="col col-xs-5">
+        <div class="product-image">
+          <div class="image">
+            <a href="${item.imageSection.link}">
+              <img src="${item.imageSection.imgSrc}" alt="${item.imageSection.alt}">
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <div class="col col-xs-7">
+        <div class="product-info">
+          <h3 class="name">
+            <a href="${item.infoSection.link}">
+              ${item.infoSection.name}
+            </a>
+          </h3>
+          <div class="rating ${item.infoSection.ratingClass}"></div>
+          <div class="product-price">
+            <span class="price">${item.infoSection.price}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+
+  container.insertAdjacentHTML("beforeend", productHTML);
+});
+
+  } catch (error) {
+    console.error("Error loading products:", error);
+
+    container.innerHTML = `
+      <p style="color:red;">
+        Failed to load products. Please try again later.
+      </p>
+    `;
+  }
+}
+
+// Run after DOM loads
+// document.addEventListener("DOMContentLoaded", loadSpecialProducts);
+</script>
+<script>
+// Entry point (like the "User → System" in your sequence diagram)
+document.addEventListener("DOMContentLoaded", requestProducts);
+
+
+/**
+ * STEP 1: requestProducts()
+ * ----------------------------------
+ * This function is responsible for:
+ * - starting the data request
+ * - calling fetch() to get JSON
+ * - passing the data to renderUI()
+ */
+async function requestProducts() {
+  const path = "data/product.json"; // 🔁 Adjust if needed
+  const container = document.getElementById("special-product");
+
+  try {
+    console.log("Requesting products from:", path);
+
+    // STEP 2: Fetch data from JSON file
+    const response = await fetch(path);
+
+    // If server responds with error (404, 500, etc.)
+    if (!response.ok) {
+      throw new Error("Failed to fetch products");
+    }
+
+    // Convert response → JSON object
+    const data = await response.json();
+
+    console.log("Data received:", data);
+
+    /**
+     * STEP 3: Pass data to UI renderer
+     * ----------------------------------
+     * Data flow:
+     * requestProducts() → renderUI(data)
+     */
+    renderUI(data.products);
+
+  } catch (error) {
+    console.error("Error loading products:", error);
+
+    // Show fallback UI if something breaks
+    container.innerHTML = `
+      <p style="color:red;">Failed to load products.</p>
+    `;
+  }
+}
+
+
+/**
+ * STEP 4: renderUI(products)
+ * ----------------------------------
+ * This function is responsible for:
+ * - taking raw product data
+ * - converting it into HTML
+ * - injecting it into the DOM
+ *
+ * Data flow:
+ * JSON → JS Object → HTML String → DOM
+ */
+function renderUI(products) {
+  const container = document.getElementById("special-product");
+
+  // Clear existing content before rendering
+  container.innerHTML = "";
+
+  // Loop through each product
+  products.forEach(product => {
+
+    /**
+     * ⚠️ IMPORTANT:
+     * Adjust based on YOUR JSON structure
+     *
+     * If using nested structure:
+     */
+    const item = product.productMicroRow;
+
+    const name = item.infoSection.name;
+    const price = item.infoSection.price;
+    const link = item.infoSection.link;
+    const image = item.imageSection.imgSrc;
+    const alt = item.imageSection.alt;
+
+    /**
+     * Convert JS data → HTML template
+     */
+    const productHTML = `
+      <div class="row product-micro-row">
+        <div class="col col-xs-5">
+          <div class="product-image">
+            <div class="image">
+              <a href="${link}">
+                <img src="${image}" alt="${alt}">
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <div class="col col-xs-7">
+          <div class="product-info">
+            <h3 class="name">
+              <a href="${link}">${name}</a>
+            </h3>
+            <div class="rating rateit-small"></div>
+            <div class="product-price">
+              <span class="price">${price}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+
+    // Inject HTML into page
+    container.insertAdjacentHTML("beforeend", productHTML);
+  });
+
+  console.log("UI rendered successfully");
+}
+</script>
+
 </body>
 
 </html>
