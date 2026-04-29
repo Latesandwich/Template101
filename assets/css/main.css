@@ -7370,4 +7370,53 @@ li.dropdown.navbar-right.special-menu {
 /*===================================================================================*/
 
 .home-banner { margin-top: 30px;}
-.home-banner img {border-radius:5px}	
+.home-banner img {border-radius:5px}
+
+/* Search suggestion dropdown for the header search */
+.search-area {
+  position: relative;
+}
+
+.search-area .search-suggestions {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  z-index: 1200;
+  background: #fff;
+  border: 1px solid #ddd;
+  border-top: none;
+  border-radius: 0 0 4px 4px;
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.12);
+  max-height: 260px;
+  overflow-y: auto;
+  display: none;
+}
+
+.search-area .search-suggestions ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.search-area .search-suggestions li {
+  padding: 10px 14px;
+  font-size: 13px;
+  line-height: 1.4;
+  color: #333;
+  cursor: pointer;
+  border-bottom: 1px solid #eee;
+}
+
+.search-area .search-suggestions li:hover {
+  background: #f4f8ff;
+}
+
+.search-area .search-suggestions li.no-results {
+  cursor: default;
+  color: #777;
+}
+
+.search-area .search-suggestions li:last-child {
+  border-bottom: none;
+}
