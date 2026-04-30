@@ -1,0 +1,82 @@
+[
+  {
+    "id": 1,
+    "name": "Floral Print Shirt",
+    "image": "assets/images/products/p1.jpg",
+    "price": "$450.99",
+    "rating": 4.5,
+    "description": "A beautiful floral print shirt made from 100% organic cotton. Perfect for summer outings."
+  },
+  {
+    "id": 2,
+    "name": "Classic White T-Shirt",
+    "image": "assets/images/products/p2.jpg",
+    "price": "$199.99",
+    "rating": 4.0,
+    "description": "Essential classic white t-shirt. Durable, comfortable, and versatile for any wardrobe."
+  },
+  {
+    "id": 3,
+    "name": "Denim Jacket",
+    "image": "assets/images/products/p3.jpg",
+    "price": "$899.00",
+    "rating": 5.0,
+    "description": "Timeless denim jacket with a modern fit. Features premium buttons and reinforced stitching."
+  },
+  {
+    "id": 4,
+    "name": "Slim Fit Jeans",
+    "image": "assets/images/products/p4.jpg",
+    "price": "$650.50",
+    "rating": 4.2,
+    "description": "High-quality slim fit jeans with a touch of stretch for all-day comfort."
+  },
+  {
+    "id": 5,
+    "name": "Casual Hoodie",
+    "image": "assets/images/products/p5.jpg",
+    "price": "$520.00",
+    "rating": 4.8,
+    "description": "Soft and cozy casual hoodie. Ideal for layering during cooler months."
+  },
+  {
+    "id": 6,
+    "name": "Leather Belt",
+    "image": "assets/images/products/p6.jpg",
+    "price": "$120.75",
+    "rating": 4.1,
+    "description": "Genuine leather belt with a sleek polished buckle. A must-have accessory."
+  },
+  {
+    "id": 7,
+    "name": "Running Sneakers",
+    "image": "assets/images/products/p7.jpg",
+    "price": "$780.00",
+    "rating": 4.6,
+    "description": "Lightweight running sneakers with advanced cushioning for peak performance."
+  },
+  {
+    "id": 8,
+    "name": "Formal Blazer",
+    "image": "assets/images/products/p8.jpg",
+    "price": "$1200.99",
+    "rating": 4.9,
+    "description": "Elegant formal blazer for special occasions. Features a tailored fit and premium lining."
+  },
+  {
+    "id": 9,
+    "name": "Cotton Polo Shirt",
+    "image": "assets/images/products/p9.jpg",
+    "price": "$340.00",
+    "rating": 4.3,
+    "description": "Classic cotton polo shirt with a breathable knit. Available in multiple colors."
+  },
+  {
+    "id": 10,
+    "name": "Chino Shorts",
+    "image": "assets/images/products/p10.jpg",
+    "price": "$299.99",
+    "rating": 4.4,
+    "description": "Stylish chino shorts for a relaxed summer look. Made from durable twill fabric."
+  }
+]

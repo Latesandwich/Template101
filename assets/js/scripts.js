@@ -401,6 +401,206 @@ function setSearchProductData(products) {
   window.allProducts = window.productData;
 }
 
+/*===================================================================================*/
+/*  HELPERS
+/*===================================================================================*/
+
+function escapeHTML(str) {
+  if (!str) return '';
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
+
+function isHomePage() {
+  return window.location.pathname.endsWith('home.html') || window.location.pathname.endsWith('/') || window.location.pathname.endsWith('index.html');
+}
+
+function isCategoryPage() {
+  return window.location.pathname.includes('category.html');
+}
+
+function isDetailPage() {
+  return window.location.pathname.includes('detail.html');
+}
+
+function setSearchProductData(products) {
+  // Existing logic if any, or just store it
+  window.allProducts = products;
+}
+
+
+function createProductHtml(product, type = 'grid') {
+  const item = product.productMicroRow || {};
+  const info = item.infoSection || {};
+  const image = item.imageSection || {};
+  
+  const link = escapeHTML(info.link || '#');
+  const imgSrc = escapeHTML(image.imgSrc || '');
+  const alt = escapeHTML(image.alt || '');
+  const name = escapeHTML(info.name || '');
+  const price = escapeHTML(info.price || '');
+  const ratingClass = escapeHTML(info.ratingClass || 'rateit-small');
+
+  if (type === 'micro') {
+    return `
+      <div class="product">
+        <div class="product-micro">
+          <div class="row product-micro-row">
+            <div class="col col-xs-5">
+              <div class="product-image">
+                <div class="image"> <a href="${link}"> <img src="${imgSrc}" alt="${alt}"> </a> </div>
+              </div>
+            </div>
+            <div class="col col-xs-7">
+              <div class="product-info">
+                <h3 class="name"><a href="${link}">${name}</a></h3>
+                <div class="rating ${ratingClass}"></div>
+                <div class="product-price"> <span class="price"> ${price} </span> </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>`;
+  }
+
+  if (type === 'hot-deal') {
+    return `
+      <div class="item">
+        <div class="products">
+          <div class="hot-deal-wrapper">
+            <div class="image">
+              <a href="${link}">
+                <img src="${imgSrc}" alt="${alt}"> 
+              </a>
+            </div>
+            <div class="sale-offer-tag"><span>35%<br>off</span></div>
+            <div class="timing-wrapper">
+              <div class="box-wrapper"><div class="date box"> <span class="key">120</span> <span class="value">Days</span> </div></div>
+              <div class="box-wrapper"><div class="hour box"> <span class="key">20</span> <span class="value">HRS</span> </div></div>
+              <div class="box-wrapper"><div class="minutes box"> <span class="key">36</span> <span class="value">MINS</span> </div></div>
+              <div class="box-wrapper"><div class="seconds box"> <span class="key">60</span> <span class="value">SEC</span> </div></div>
+            </div>
+          </div>
+          <div class="product-info text-left m-t-20">
+            <h3 class="name"><a href="${link}">${name}</a></h3>
+            <div class="rating ${ratingClass}"></div>
+            <div class="product-price"> <span class="price"> ${price} </span> </div>
+          </div>
+          <div class="cart clearfix animate-effect">
+            <div class="action">
+              <div class="add-cart-button btn-group">
+                <button class="btn btn-primary icon" data-toggle="dropdown" type="button"> <i class="fa fa-shopping-cart"></i> </button>
+                <button class="btn btn-primary cart-btn" type="button">Add to cart</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>`;
+  }
+
+  return `
+    <div class="item item-carousel">
+      <div class="products">
+        <div class="product">
+          <div class="product-image">
+            <div class="image"> 
+              <a href="${link}">
+                <img src="${imgSrc}" alt="${alt}"> 
+              </a> 
+            </div>
+          </div>
+          <div class="product-info text-left">
+            <h3 class="name"><a href="${link}">${name}</a></h3>
+            <div class="rating ${ratingClass}"></div>
+            <div class="description"></div>
+            <div class="product-price"> <span class="price"> ${price} </span> </div>
+          </div>
+          <div class="cart clearfix animate-effect">
+            <div class="action">
+              <ul class="list-unstyled">
+                <li class="add-cart-button btn-group">
+                  <button data-toggle="tooltip" class="btn btn-primary icon" type="button" title="Add Cart"> <i class="fa fa-shopping-cart"></i> </button>
+                  <button class="btn btn-primary cart-btn" type="button">Add to cart</button>
+                </li>
+                <li class="lnk wishlist"> <a data-toggle="tooltip" class="add-to-cart" href="${link}" title="Wishlist"> <i class="icon fa fa-heart"></i> </a> </li>
+                <li class="lnk"> <a data-toggle="tooltip" class="add-to-cart" href="${link}" title="Compare"> <i class="fa fa-signal" aria-hidden="true"></i> </a> </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>`;
+}
+
+function renderProductsToContainer(products, containerSelector, type = 'grid', limit = 10) {
+  const $container = jQuery(containerSelector);
+  if (!$container.length) return;
+
+  const items = products.slice(0, limit);
+  let html = '';
+  
+  if (type === 'micro') {
+    // Micro products are often grouped in groups of 3
+    for (let i = 0; i < items.length; i += 3) {
+      html += '<div class="item"><div class="products special-product">';
+      for (let j = i; j < i + 3 && j < items.length; j++) {
+        html += createProductHtml(items[j], 'micro');
+      }
+      html += '</div></div>';
+    }
+  } else {
+    items.forEach(product => {
+      html += createProductHtml(product, type);
+    });
+  }
+
+  $container.empty().append(html);
+
+  // Re-initialize owl carousel if it was already initialized
+  if ($container.data('owlCarousel')) {
+    $container.data('owlCarousel').destroy();
+  }
+  
+  // Trigger owl carousel initialization
+  if ($container.hasClass('home-owl-carousel')) {
+     var itemPerLine = $container.data('item') || 5;
+     $container.owlCarousel({
+        items : itemPerLine,
+        itemsDesktop : [1199,3],
+        itemsTablet:[991,2],
+        navigation : true,
+        pagination : false,
+        navigationText: ["", ""]
+    });
+  } else if ($container.hasClass('sidebar-carousel')) {
+    $container.owlCarousel({
+        items : 1,
+        itemsTablet:[978,1],
+        itemsDesktopSmall :[979,2],
+        itemsDesktop : [1199,1],
+        navigation : true,
+        slideSpeed : 300,
+        pagination: false,
+        paginationSpeed : 400,
+        navigationText: ["", ""]
+    });
+  } else if ($container.hasClass('homepage-owl-carousel')) {
+    var itemPerLine = $container.data('item') || 4;
+    $container.owlCarousel({
+        items : itemPerLine,
+        itemsTablet:[991,2],
+        itemsDesktop : [1199,3],
+        navigation : true,
+        pagination : false,
+        navigationText: ["", ""]
+    });
+  }
+}
+
 async function loadProductData() {
   try {
     const response = await fetch('data/product.json');
@@ -415,6 +615,23 @@ async function loadProductData() {
     if (isCategoryPage()) {
       renderCategoryProducts();
     }
+
+    if (isHomePage()) {
+      renderProductsToContainer(products, '#all .home-owl-carousel', 'grid', 20);
+      renderProductsToContainer(products, '#smartphone .home-owl-carousel', 'grid', 10);
+      renderProductsToContainer(products, '#laptop .home-owl-carousel', 'grid', 10);
+      renderProductsToContainer(products, '#apple .home-owl-carousel', 'grid', 10);
+      
+      renderProductsToContainer(products, '#special-offer-carousel', 'micro', 9);
+      renderProductsToContainer(products, '#special-deals-carousel', 'micro', 9);
+      renderProductsToContainer(products, '#hot-deals-carousel', 'hot-deal', 3);
+    }
+    
+    // Also handle detail page upsell
+    if (jQuery('.upsell-product').length) {
+      renderProductsToContainer(products, '.upsell-product', 'grid', 6);
+    }
+
   } catch (error) {
     console.error('Error loading product data:', error);
   }

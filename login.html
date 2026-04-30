@@ -3,16 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Marazzo Shop - Contact Us</title>
+    <title>Marazzo Shop - Login</title>
     <link href='https://fonts.googleapis.com/css?family=Barlow:200,300,300i,400,400i,500,600,700,800' rel='stylesheet' type='text/css'>
     <link rel="stylesheet" href="assets/css/bootstrap.min.css">
     <link rel="stylesheet" href="assets/css/main.css">
     <link rel="stylesheet" href="assets/css/blue.css">
     <link rel="stylesheet" href="assets/css/font-awesome.css">
     <link rel="stylesheet" href="assets/css/custom.css">
-    <style>
-        .contact-container { background: #fff; padding: 40px; border-radius: 5px; box-shadow: 0 0 10px rgba(0,0,0,0.05); }
-    </style>
 </head>
 <body class="cnt-home">
     <header class="header">
@@ -35,33 +32,29 @@
         </div>
     </header>
 
-    <div class="body-content">
-        <div class="container">
-            <div class="row">
-                <div class="col-md-6 col-md-offset-3 contact-container">
-                    <h2 class="section-title">Contact Us</h2>
-                    <form id="contact-form">
-                        <div class="form-group">
-                            <label for="name">Name</label>
-                            <input type="text" class="form-control" id="name" placeholder="Enter your name" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="email">Email</label>
-                            <input type="email" class="form-control" id="email" placeholder="Enter your email" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="subject">Subject</label>
-                            <input type="text" class="form-control" id="subject" placeholder="Enter subject">
-                        </div>
-                        <div class="form-group">
-                            <label for="message">Message</label>
-                            <textarea class="form-control" id="message" rows="5" placeholder="Your message" required></textarea>
-                        </div>
-                        <button type="submit" class="btn btn-primary">Send Message</button>
-                    </form>
-                    <div id="form-feedback" class="m-t-20" style="display:none;">
-                        <p class="alert alert-success">Thank you! Your message has been sent.</p>
+    <div class="container">
+        <div class="row">
+            <div class="col-md-4 col-md-offset-4 login-container">
+                <h2 class="login-title">Sign In</h2>
+                <form id="login-form">
+                    <div class="form-group">
+                        <label for="email">Email Address</label>
+                        <input type="email" class="form-control" id="email" value="user@example.com" required>
                     </div>
+                    <div class="form-group">
+                        <label for="password">Password</label>
+                        <input type="password" class="form-control" id="password" value="password123" required>
+                    </div>
+                    <div class="checkbox">
+                        <label><input type="checkbox"> Remember me</label>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-block">Login</button>
+                    <div class="m-t-20 text-center">
+                        <a href="#">Forgot password?</a>
+                    </div>
+                </form>
+                <div id="login-success" style="display:none;" class="text-center">
+                    <p class="alert alert-success">Login successful! Redirecting...</p>
                 </div>
             </div>
         </div>
@@ -79,12 +72,16 @@
                 badge.hide();
             }
         }
+
         $(document).ready(function() {
             updateCartCount();
-            $('#contact-form').on('submit', function(e) {
+            $('#login-form').on('submit', function(e) {
                 e.preventDefault();
                 $(this).fadeOut(function() {
-                    $('#form-feedback').fadeIn();
+                    $('#login-success').fadeIn();
+                    setTimeout(function() {
+                        window.location.href = 'index.html';
+                    }, 1500);
                 });
             });
         });
