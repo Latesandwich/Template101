@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Marazzo Shop - Home</title>
+    <title>Marazzo Shop - Product Details</title>
     <link href='https://fonts.googleapis.com/css?family=Barlow:200,300,300i,400,400i,500,600,700,800' rel='stylesheet' type='text/css'>
     <link rel="stylesheet" href="assets/css/bootstrap.min.css">
     <link rel="stylesheet" href="assets/css/main.css">
@@ -35,13 +35,8 @@
 
     <div class="body-content">
         <div class="container">
-            <div class="row">
-                <div class="col-xs-12">
-                    <h2 class="section-title">Featured Products</h2>
-                    <div id="product-container" class="row">
-                        <!-- Products will be loaded here -->
-                    </div>
-                </div>
+            <div id="product-detail-content" class="row product-detail-container">
+                <!-- Details will be loaded here -->
             </div>
         </div>
     </div>
@@ -49,7 +44,6 @@
     <div id="cart-toast">Item added to cart!</div>
 
     <script src="assets/js/jquery-1.11.1.min.js"></script>
-    <script src="assets/js/bootstrap.min.js"></script>
     <script src="assets/js/jquery.rateit.min.js"></script>
     <script>
         function updateCartCount() {
@@ -72,13 +66,14 @@
             }, 3000);
         }
 
-        function addToCart(product) {
+        function addToCart(product, quantity) {
             let cart = JSON.parse(localStorage.getItem('cart')) || [];
             const existing = cart.find(item => item.id === product.id);
+            quantity = parseInt(quantity);
             if (existing) {
-                existing.quantity += 1;
+                existing.quantity += quantity;
             } else {
-                product.quantity = 1;
+                product.quantity = quantity;
                 cart.push(product);
             }
             localStorage.setItem('cart', JSON.stringify(cart));
@@ -88,36 +83,43 @@
 
         $(document).ready(function() {
             updateCartCount();
-            $.getJSON('data/products.json', function(products) {
-                const container = $('#product-container');
-                products.forEach(product => {
-                    const productHtml = `
-                        <div class="col-sm-6 col-md-4 col-lg-3">
-                            <div class="product-card">
-                                <div class="product-image">
-                                    <a href="product-details.html?id=${product.id}">
-                                        <img src="${product.image}" alt="${product.name}">
-                                    </a>
-                                </div>
-                                <div class="product-info">
-                                    <a href="product-details.html?id=${product.id}" class="product-name">${product.name}</a>
-                                    <div class="rating">
-                                        <div class="rateit" data-rateit-value="${product.rating}" data-rateit-ispreset="true" data-rateit-readonly="true"></div>
-                                    </div>
-                                    <div class="product-price">${product.price}</div>
-                                    <div class="action m-t-10">
-                                        <button class="btn btn-primary" type="button" onclick='addToCart(${JSON.stringify(product)})'>Add to Cart</button>
-                                    </div>
-                                </div>
+            const urlParams = new URLSearchParams(window.location.search);
+            const productId = parseInt(urlParams.get('id'));
+
+            $.getJSON('/api/products', function(response) {
+                const products = response.products || (response.data && response.data.products);
+                const product = products.find(p => p.id === productId);
+                if (product) {
+                    const detailHtml = `
+                        <div class="col-md-6 detail-image">
+                            <img src="${product.image}" alt="${product.name}">
+                        </div>
+                        <div class="col-md-6 detail-info">
+                            <h1>${product.name}</h1>
+                            <div class="rating">
+                                <div class="rateit" data-rateit-value="${product.rating}" data-rateit-ispreset="true" data-rateit-readonly="true"></div>
+                            </div>
+                            <div class="detail-price">${product.price}</div>
+                            <p class="detail-description">${product.description}</p>
+                            <div class="quantity-container m-t-20">
+                                <label>Quantity:</label>
+                                <input type="number" id="qty-input" class="form-control" value="1" min="1" style="width: 80px; display: inline-block; margin-left: 10px;">
+                            </div>
+                            <div class="m-t-20">
+                                <button class="btn btn-primary btn-lg" type="button" id="add-to-cart-btn"><i class="fa fa-shopping-cart"></i> Add to Cart</button>
                             </div>
                         </div>
                     `;
-                    container.append(productHtml);
-                });
-                $('.rateit').rateit();
-            }).fail(function() {
-                console.error("Error loading products.json.");
-                $('#product-container').html('<div class="col-xs-12"><p class="alert alert-warning">Error loading products. Please use a local server.</p></div>');
+                    $('#product-detail-content').html(detailHtml);
+                    $('.rateit').rateit();
+
+                    $('#add-to-cart-btn').on('click', function() {
+                        const qty = $('#qty-input').val();
+                        addToCart(product, qty);
+                    });
+                } else {
+                    $('#product-detail-content').html('<div class="col-xs-12"><p class="alert alert-danger">Product not found.</p></div>');
+                }
             });
         });
     </script>

@@ -78,5 +78,13 @@
     "price": "$299.99",
     "rating": 4.4,
     "description": "Stylish chino shorts for a relaxed summer look. Made from durable twill fabric."
+  },
+  {
+    "id": 11,
+    "name": "Classic Fedora Hat",
+    "image": "assets/images/products/p1.jpg",
+    "price": "$150.00",
+    "rating": 4.7,
+    "description": "A stylish classic fedora hat to complete your look."
   }
 ]
