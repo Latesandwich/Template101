@@ -39,11 +39,11 @@
                 <form id="login-form">
                     <div class="form-group">
                         <label for="email">Email Address</label>
-                        <input type="email" class="form-control" id="email" value="user@example.com" required>
+                        <input type="email" class="form-control" id="email" placeholder="Email Address" required>
                     </div>
                     <div class="form-group">
                         <label for="password">Password</label>
-                        <input type="password" class="form-control" id="password" value="password123" required>
+                        <input type="password" class="form-control" id="password" placeholder="Password" required>
                     </div>
                     <div class="checkbox">
                         <label><input type="checkbox"> Remember me</label>
@@ -53,6 +53,9 @@
                         <a href="#">Forgot password?</a>
                     </div>
                 </form>
+                <div id="login-error" style="display:none;" class="text-center">
+                    <p id="login-error-message" class="alert alert-danger"></p>
+                </div>
                 <div id="login-success" style="display:none;" class="text-center">
                     <p class="alert alert-success">Login successful! Redirecting...</p>
                 </div>
@@ -77,11 +80,41 @@
             updateCartCount();
             $('#login-form').on('submit', function(e) {
                 e.preventDefault();
-                $(this).fadeOut(function() {
-                    $('#login-success').fadeIn();
-                    setTimeout(function() {
-                        window.location.href = 'index.html';
-                    }, 1500);
+                const email = $('#email').val();
+                const password = $('#password').val();
+
+                const apiUrl = window.location.protocol === 'file:' ? 'http://localhost:3000/api/login' : '/api/login';
+
+                $('#login-error').hide();
+                $('#login-error-message').text('');
+
+                $.ajax({
+                    url: apiUrl,
+                    method: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify({ email, password }),
+                    success: function(response) {
+                        if (response.token) {
+                            localStorage.setItem('authToken', response.token);
+                            
+                            $('#login-form').fadeOut(function() {
+                                $('#login-success').fadeIn();
+                                setTimeout(function() {
+                                    window.location.href = 'index.html';
+                                }, 1500);
+                            });
+                        }
+                    },
+                    error: function(xhr) {
+                        let message = 'Login failed';
+                        if (xhr.responseJSON && xhr.responseJSON.message) {
+                            message = xhr.responseJSON.message;
+                        } else if (xhr.responseText) {
+                            message = xhr.responseText;
+                        }
+                        $('#login-error-message').text(message);
+                        $('#login-error').show();
+                    }
                 });
             });
         });

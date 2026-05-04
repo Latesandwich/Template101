@@ -1,15 +1,19 @@
 const express = require('express');
 const path = require('path');
+const cors = require('cors');
 const productRoutes = require('./routes/productRoutes');
+const authRoutes = require('./routes/authRoutes');
 
 const app = express();
 
 // Middleware
+app.use(cors()); // Enable CORS for all routes
 app.use(express.json());
 app.use(express.static(path.join(__dirname, '../..')));
 
 // Routes
 app.use('/api/products', productRoutes);
+app.use('/api', authRoutes);
 
 // Error handling middleware
 app.use((err, req, res, next) => {
