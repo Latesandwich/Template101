@@ -1,0 +1,16 @@
+[
+  {
+    "id": 1777903620160,
+    "username": "testuser@example.com",
+    "password": "$2b$10$KXZeESRJKnKOco72kiUkB.xm6VMJBEwMi8YkurHTfOFEUOAWXFS3S",
+    "firstName": "Test User",
+    "registrationDate": "2026-05-04"
+  },
+  {
+    "id": 1777903664473,
+    "username": "testuser@example.com",
+    "password": "$2b$10$foJMFLBLFDUf0o2VUd7JE.KkzRx0rfAKfH9n5P2Qy6MwtDzLfqErW",
+    "firstName": "Duplicate",
+    "registrationDate": "2026-05-04"
+  }
+]

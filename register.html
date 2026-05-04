@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Marazzo Shop - Register</title>
+    <link href='https://fonts.googleapis.com/css?family=Barlow:200,300,300i,400,400i,500,600,700,800' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" href="assets/css/bootstrap.min.css">
+    <link rel="stylesheet" href="assets/css/main.css">
+    <link rel="stylesheet" href="assets/css/blue.css">
+    <link rel="stylesheet" href="assets/css/font-awesome.css">
+    <link rel="stylesheet" href="assets/css/custom.css">
+    <style>
+        .password-requirements {
+            margin-top: 10px;
+            font-size: 12px;
+        }
+        .requirement {
+            margin: 5px 0;
+            padding: 5px;
+            border-radius: 3px;
+        }
+        .requirement.pending {
+            background-color: #f5f5f5;
+            color: #666;
+        }
+        .requirement.valid {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        .requirement.invalid {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+        .requirement i {
+            margin-right: 5px;
+        }
+    </style>
+</head>
+<body class="cnt-home">
+    <header class="header">
+        <div class="container">
+            <div class="row" style="display: flex; align-items: center;">
+                <div class="col-xs-6 col-sm-4 logo">
+                    <a href="index.html"><img src="assets/images/logo.png" alt="logo"></a>
+                </div>
+                <div class="col-xs-6 col-sm-8 text-right">
+                    <nav>
+                        <a href="index.html" class="nav-link">Home</a>
+                        <a href="cart.html" class="nav-link">
+                            <i class="fa fa-shopping-cart"></i> Cart
+                            <span id="cart-count" class="cart-count-badge">0</span>
+                        </a>
+                        <a href="login.html" class="nav-link">Login</a>
+                    </nav>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="row">
+            <div class="col-md-4 col-md-offset-4 login-container">
+                <h2 class="login-title">Create Account</h2>
+                <form id="register-form">
+                    <div class="form-group">
+                        <label for="name">Full Name</label>
+                        <input type="text" class="form-control" id="name" placeholder="Full Name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="email">Email Address</label>
+                        <input type="email" class="form-control" id="email" placeholder="Email Address" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="password">Password</label>
+                        <input type="password" class="form-control" id="password" placeholder="Password" required>
+                        <div class="password-requirements">
+                            <div class="requirement pending" id="req-length">
+                                <i class="fa fa-times-circle"></i>At least 8 characters
+                            </div>
+                            <div class="requirement pending" id="req-uppercase">
+                                <i class="fa fa-times-circle"></i>At least one uppercase letter
+                            </div>
+                            <div class="requirement pending" id="req-special">
+                                <i class="fa fa-times-circle"></i>At least one special character (!, @, #, $, %, ^, &, *)
+                            </div>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-block" id="register-btn" disabled>Register</button>
+                    <div class="m-t-20 text-center">
+                        <p>Already have an account? <a href="login.html">Sign in</a></p>
+                    </div>
+                </form>
+                <div id="register-error" style="display:none;" class="text-center">
+                    <p id="register-error-message" class="alert alert-danger"></p>
+                </div>
+                <div id="register-success" style="display:none;" class="text-center">
+                    <p class="alert alert-success">Registration successful! Redirecting to login...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="assets/js/jquery-1.11.1.min.js"></script>
+    <script>
+        function updateCartCount() {
+            const cart = JSON.parse(localStorage.getItem('cart')) || [];
+            const count = cart.length;
+            const badge = $('#cart-count');
+            if (count > 0) {
+                badge.text(count).show();
+            } else {
+                badge.hide();
+            }
+        }
+
+        function validatePassword(password) {
+            const requirements = {
+                length: password.length >= 8,
+                uppercase: /[A-Z]/.test(password),
+                special: /[!@#$%^&*]/.test(password)
+            };
+            return requirements;
+        }
+
+        function updatePasswordRequirements(password) {
+            const reqs = validatePassword(password);
+
+            // Update length requirement
+            const $reqLength = $('#req-length');
+            if (reqs.length) {
+                $reqLength.removeClass('pending invalid').addClass('valid');
+                $reqLength.html('<i class="fa fa-check-circle"></i>At least 8 characters');
+            } else {
+                $reqLength.removeClass('valid').addClass(password.length > 0 ? 'invalid' : 'pending');
+                $reqLength.html(password.length > 0 ? '<i class="fa fa-times-circle"></i>At least 8 characters' : '<i class="fa fa-times-circle"></i>At least 8 characters');
+            }
+
+            // Update uppercase requirement
+            const $reqUppercase = $('#req-uppercase');
+            if (reqs.uppercase) {
+                $reqUppercase.removeClass('pending invalid').addClass('valid');
+                $reqUppercase.html('<i class="fa fa-check-circle"></i>At least one uppercase letter');
+            } else {
+                $reqUppercase.removeClass('valid').addClass(password.length > 0 ? 'invalid' : 'pending');
+                $reqUppercase.html(password.length > 0 ? '<i class="fa fa-times-circle"></i>At least one uppercase letter' : '<i class="fa fa-times-circle"></i>At least one uppercase letter');
+            }
+
+            // Update special character requirement
+            const $reqSpecial = $('#req-special');
+            if (reqs.special) {
+                $reqSpecial.removeClass('pending invalid').addClass('valid');
+                $reqSpecial.html('<i class="fa fa-check-circle"></i>At least one special character (!, @, #, $, %, ^, &, *)');
+            } else {
+                $reqSpecial.removeClass('valid').addClass(password.length > 0 ? 'invalid' : 'pending');
+                $reqSpecial.html(password.length > 0 ? '<i class="fa fa-times-circle"></i>At least one special character (!, @, #, $, %, ^, &, *)' : '<i class="fa fa-times-circle"></i>At least one special character (!, @, #, $, %, ^, &, *)');
+            }
+
+            // Enable submit button only if all requirements are met
+            const allValid = reqs.length && reqs.uppercase && reqs.special;
+            $('#register-btn').prop('disabled', !allValid);
+        }
+
+        $(document).ready(function() {
+            updateCartCount();
+
+            // Password validation on input
+            $('#password').on('input', function() {
+                updatePasswordRequirements($(this).val());
+            });
+
+            // Form submission
+            $('#register-form').on('submit', function(e) {
+                e.preventDefault();
+                const name = $('#name').val();
+                const email = $('#email').val();
+                const password = $('#password').val();
+
+                // Validate password requirements again before sending
+                const reqs = validatePassword(password);
+                if (!reqs.length || !reqs.uppercase || !reqs.special) {
+                    $('#register-error-message').text('Password does not meet all requirements');
+                    $('#register-error').show();
+                    return;
+                }
+
+                const apiUrl = window.location.protocol === 'file:' ? 'http://localhost:3000/api/register' : '/api/register';
+
+                $('#register-error').hide();
+                $('#register-error-message').text('');
+
+                $.ajax({
+                    url: apiUrl,
+                    method: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify({ name, email, password }),
+                    success: function(response) {
+                        $('#register-form').fadeOut(function() {
+                            $('#register-success').fadeIn();
+                            setTimeout(function() {
+                                window.location.href = 'login.html';
+                            }, 2000);
+                        });
+                    },
+                    error: function(xhr) {
+                        let message = 'Registration failed';
+                        if (xhr.responseJSON && xhr.responseJSON.message) {
+                            message = xhr.responseJSON.message;
+                        } else if (xhr.responseText) {
+                            message = xhr.responseText;
+                        }
+                        $('#register-error-message').text(message);
+                        $('#register-error').show();
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
