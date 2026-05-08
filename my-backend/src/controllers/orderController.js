@@ -1,10 +1,9 @@
 const productService = require('../services/productService');
-const fs = require('fs').promises;
-const path = require('path');
+const db = require('../db');
 
 class OrderController {
   async createOrder(req, res) {
-    const { cart, email, creditCard } = req.body;
+    const { cart, email, creditCard, user_id } = req.body;
     const errors = [];
 
     // Validate cart items
@@ -31,6 +30,11 @@ class OrderController {
       errors.push('Credit card must be exactly 16 digits');
     }
 
+    // Validate user_id
+    if (!user_id || typeof user_id !== 'number') {
+      errors.push('Valid user_id is required');
+    }
+
     if (errors.length > 0) {
       return res.status(400).json({ errors });
     }
@@ -52,31 +56,70 @@ class OrderController {
         return res.status(400).json({ errors });
       }
 
-      // Save order
-      const order = {
-        id: Date.now(),
-        cart,
-        email,
-        creditCard: creditCard.slice(-4), // Store only last 4 digits for security
-        total,
-        date: new Date()
-      };
+      // Create tables if not exist
+      db.serialize(() => {
+        db.run(`CREATE TABLE IF NOT EXISTS orders (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          user_id INTEGER,
+          email TEXT,
+          credit_card TEXT,
+          total REAL,
+          date TEXT
+        )`);
 
-      const ordersPath = path.join(__dirname, '../../data/orders.json');
-      let orders = [];
-      try {
-        const data = await fs.readFile(ordersPath, 'utf8');
-        orders = JSON.parse(data);
-      } catch (e) {
-        // File doesn't exist or is invalid, start with empty array
-      }
-      orders.push(order);
-      await fs.writeFile(ordersPath, JSON.stringify(orders, null, 2));
+        db.run(`CREATE TABLE IF NOT EXISTS order_items (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          order_id INTEGER,
+          product_id INTEGER,
+          quantity INTEGER,
+          price REAL,
+          FOREIGN KEY(order_id) REFERENCES orders(id)
+        )`, (err) => {
+          if (err) {
+            return res.status(500).json({ errors: ['Failed to create tables'] });
+          }
 
-      return res.status(200).json({ message: 'Order saved successfully', orderId: order.id });
+          // Insert order
+          const stmt = db.prepare(`INSERT INTO orders (user_id, email, credit_card, total, date) VALUES (?, ?, ?, ?, ?)`, (err) => {
+            if (err) {
+              return res.status(500).json({ errors: ['Failed to prepare order insert'] });
+            }
+          });
+
+          stmt.run(user_id, email, creditCard.slice(-4), total, new Date().toISOString(), function(err) {
+            if (err) {
+              return res.status(500).json({ errors: ['Failed to insert order'] });
+            }
+            const orderId = this.lastID;
+
+            // Insert order items
+            const itemStmt = db.prepare(`INSERT INTO order_items (order_id, product_id, quantity, price) VALUES (?, ?, ?, ?)`, (err) => {
+              if (err) {
+                return res.status(500).json({ errors: ['Failed to prepare item insert'] });
+              }
+            });
+
+            let itemsInserted = 0;
+            for (let item of cart) {
+              const product = products.find(p => p.id == item.productId);
+              itemStmt.run(orderId, item.productId, item.quantity, product.price, (err) => {
+                if (err) {
+                  return res.status(500).json({ errors: ['Failed to insert order item'] });
+                }
+                itemsInserted++;
+                if (itemsInserted === cart.length) {
+                  itemStmt.finalize();
+                  stmt.finalize();
+                  return res.status(200).json({ message: 'Order saved successfully', orderId });
+                }
+              });
+            }
+          });
+        });
+      });
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
-      return res.status(400).json({ errors: [`Failed to save order: ${message}`] });
+      return res.status(400).json({ errors: [`Failed to process order: ${message}`] });
     }
   }
 }
